@@ -39,7 +39,7 @@ def denoise_morphology(frame: np.ndarray):
 
 def threshold_frame(frame: np.ndarray):
     _, frame = cv.threshold(frame, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
-    # Mask the central area where the user's head id not to detect it
+    # Mask the central area where the user's head is not to detect it
     frame[:, frame.shape[1] // 3 : 2 * frame.shape[1] // 3] = 0
     return frame
 
@@ -76,5 +76,15 @@ def detect_hands(frame: np.ndarray):
     # Flip the mask and the frame horizontally
     skin_mask = cv.flip(skin_mask, 1)
     frame = cv.flip(frame, 1)
-    frame = find_hands_contours(frame=frame, skin_mask=skin_mask)
-    return frame
+    frame, obj_rects = find_hands_contours(frame=frame, skin_mask=skin_mask)
+    return frame, obj_rects
+
+
+def new_detect_hands(frame: np.ndarray, bg_subtractor):
+    skin_mask = bg_subtractor.apply(frame)
+    skin_mask = cv.flip(skin_mask, 1)
+    # Mask the central area where the user's head is not to detect it
+    skin_mask[:, frame.shape[1] // 3 : 2 * frame.shape[1] // 3] = 0
+    frame = cv.flip(frame, 1)
+    frame, obj_rects = find_hands_contours(frame, skin_mask)
+    return frame, obj_rects
