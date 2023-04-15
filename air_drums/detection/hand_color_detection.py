@@ -11,9 +11,7 @@ MIN_CNT_AREA = 5000
 def detect_skin(frame: np.ndarray):
     """Detect the skin of the user."""
     # Convert to hsv space
-    hsv_frame = cv.cvtColor(frame, cv.COLOR_BGR2HLS)
-    # Delete the brightness component (last component) so that
-    # the skin detection is invariant to the brightness
+    hsv_frame = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
     skin_mask = cv.inRange(hsv_frame, HSV_SKIN_LOW_THRESHOLD, HSV_SKIN_HIGH_THRESHOLD)
     return skin_mask
 
@@ -68,7 +66,7 @@ def find_hands_contours(frame: np.ndarray, skin_mask: np.ndarray):
     return frame, obj_rects
 
 
-def detect_hands(frame: np.ndarray):
+def detect_color_hands(frame: np.ndarray):
     """Detect the hands on the frame."""
     skin_mask = detect_skin(frame)
     skin_mask = denoise_morphology(skin_mask)
@@ -77,14 +75,4 @@ def detect_hands(frame: np.ndarray):
     skin_mask = cv.flip(skin_mask, 1)
     frame = cv.flip(frame, 1)
     frame, obj_rects = find_hands_contours(frame=frame, skin_mask=skin_mask)
-    return frame, obj_rects
-
-
-def new_detect_hands(frame: np.ndarray, bg_subtractor):
-    skin_mask = bg_subtractor.apply(frame)
-    skin_mask = cv.flip(skin_mask, 1)
-    # Mask the central area where the user's head is not to detect it
-    skin_mask[:, frame.shape[1] // 3 : 2 * frame.shape[1] // 3] = 0
-    frame = cv.flip(frame, 1)
-    frame, obj_rects = find_hands_contours(frame, skin_mask)
     return frame, obj_rects

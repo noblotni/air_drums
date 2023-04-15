@@ -14,9 +14,11 @@ class ObjectDetected:
         self.object_found = True
         # Counter to discard the object if not found three times in a row
         self.object_not_found_count = 0
-        self.current_dist_topleft_corner = np.linalg.norm(rectangle[0, :] - self.center)
+        self.current_dist = np.mean(
+            [np.linalg.norm(rectangle[i, :] - self.center) for i in range(4)]
+        )
         # Quantify zoom
-        self.diff_dist_topleft_corner = 0
+        self.diff_dist = 0
 
 
 class CentroidTracker:
@@ -53,11 +55,11 @@ class CentroidTracker:
                     same_object = True
                     obj.center = new_center
                     obj.rectangle = rect
-                    dist = np.linalg.norm(rect[0, :] - new_center)
-                    obj.diff_dist_topleft_corner = (
-                        dist - obj.current_dist_topleft_corner
+                    dist = np.mean(
+                        [np.linalg.norm(rect[i, :] - new_center) for i in range(4)]
                     )
-                    obj.current_dist_topleft_corner = dist
+                    obj.diff_dist = dist - obj.current_dist
+                    obj.current_dist = dist
 
             if not same_object:
                 new_id = uuid.uuid1().int

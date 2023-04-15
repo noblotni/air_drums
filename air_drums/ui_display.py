@@ -1,12 +1,11 @@
 """UI elements."""
 import numpy as np
 import cv2 as cv
-import simpleaudio as sa
 from air_drums.hand_tracking import CentroidTracker
 import air_drums.sound_player as sp
 from air_drums.sound_player import play_drum_sound
 
-MIN_DIFF = 10
+MIN_DIFF = 20
 
 
 def create_drums_rectangles_coords(frame: np.ndarray):
@@ -163,7 +162,7 @@ def find_hit_drum(frame: np.ndarray, center: np.ndarray):
 
 def hit_event(tracker: CentroidTracker, frame: np.ndarray):
     for _, obj in tracker.objects.items():
-        if obj.diff_dist_topleft_corner > MIN_DIFF:
+        if obj.diff_dist > MIN_DIFF:
             cv.circle(
                 frame, center=obj.center, radius=0, thickness=20, color=(0, 0, 255)
             )
