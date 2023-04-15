@@ -1,7 +1,9 @@
 name: lint
 
 on:
-  - pull_request[main]
+  pull_request:
+    - branch: main
+
 
 jobs:
   test:
